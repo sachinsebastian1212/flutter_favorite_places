@@ -6,7 +6,9 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 
 class LocationInput extends StatefulWidget {
-  const LocationInput({super.key});
+  const LocationInput({super.key, required this.onSelectLocation});
+
+  final void Function(PlaceLocation) onSelectLocation;
 
   @override
   State<LocationInput> createState() => _LocationInputState();
@@ -15,6 +17,7 @@ class LocationInput extends StatefulWidget {
 class _LocationInputState extends State<LocationInput> {
   PlaceLocation? _pickedLocation;
   var _isGettingLocation = false;
+
   void _getCurrentLocation() async {
     Location location = Location();
 
@@ -59,6 +62,8 @@ class _LocationInputState extends State<LocationInput> {
           PlaceLocation(latitude: lat, longitude: lng, address: address);
       _isGettingLocation = false;
     });
+
+    widget.onSelectLocation(_pickedLocation!);
   }
 
   @override
@@ -69,6 +74,15 @@ class _LocationInputState extends State<LocationInput> {
             .textTheme
             .bodyLarge!
             .copyWith(color: Theme.of(context).colorScheme.onSurface));
+    if (_pickedLocation != null) {
+      //added sample image since dont have permission in google maps
+      previewContent = Image.network(
+        "https://picsum.photos/250?image=9",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
     if (_isGettingLocation) {
       previewContent = const CircularProgressIndicator();
     }
