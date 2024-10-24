@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_favorite_places/models/place.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
 
 class LocationInput extends StatefulWidget {
   const LocationInput({super.key});
@@ -9,7 +13,7 @@ class LocationInput extends StatefulWidget {
 }
 
 class _LocationInputState extends State<LocationInput> {
-  Location? _pickedLocation;
+  PlaceLocation? _pickedLocation;
   var _isGettingLocation = false;
   void _getCurrentLocation() async {
     Location location = Location();
@@ -39,11 +43,20 @@ class _LocationInputState extends State<LocationInput> {
     });
 
     locationData = await location.getLocation();
-
-    print(locationData.latitude);
-    print(locationData.longitude);
+    final lat = locationData.latitude;
+    final lng = locationData.longitude;
+    if (lat == null || lng == null) {
+      return;
+    }
+    final url = Uri.parse(
+        "https://api-bdc.net/data/reverse-geocode-client?latitude=$lat&longitude=$lng&localityLanguage=en");
+    final response = await http.get(url);
+    final resData = json.decode(response.body);
+    final address = resData['localityInfo']['administrative'][2]['name'];
 
     setState(() {
+      _pickedLocation =
+          PlaceLocation(latitude: lat, longitude: lng, address: address);
       _isGettingLocation = false;
     });
   }
