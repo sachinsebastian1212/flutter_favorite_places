@@ -56,7 +56,7 @@ class UserPlacesNotifier extends StateNotifier<List<Place>> {
     );
 
     final db = await _getDatabase();
-    db.insert('user', {
+    db.insert('user_places', {
       'id': newPlace.id,
       'title': newPlace.title,
       'image': newPlace.image.path,
